@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animated Flower Curve</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="flowerCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById("flowerCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Set the canvas to fill the window
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    // Define the flower function based on the provided formula
+    function flower(theta) {
+      return Math.exp(Math.sin(theta)) 
+             - 2 * Math.cos(2 * theta) 
+             + Math.pow(Math.sin(theta / 12 - Math.PI / 24), 5);
+    }
+
+    let offset = 0; // Animation offset
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      // Move the origin to the center of the canvas
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+
+      ctx.beginPath();
+      let firstPoint = true;
+      // Loop over a range of theta values to plot the curve
+      for (let theta = 0; theta < 12 * Math.PI; theta += 0.01) {
+        // Add an offset to animate the curve over time
+        let r = flower(theta + offset);
+        // Convert polar to Cartesian coordinates (scale factor applied)
+        let x = r * Math.cos(theta);
+        let y = r * Math.sin(theta);
+        // Multiply coordinates to adjust the drawing size
+        const scale = 50;
+        if (firstPoint) {
+          ctx.moveTo(x * scale, y * scale);
+          firstPoint = false;
+        } else {
+          ctx.lineTo(x * scale, y * scale);
+        }
+      }
+      // Style the curve
+      ctx.strokeStyle = 'magenta';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+
+      // Update the offset to animate the curve over time
+      offset += 0.01;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
